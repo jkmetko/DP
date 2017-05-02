@@ -3,6 +3,8 @@
 @section('content')
     <div id="predictions"></div>
     <div id="errors"></div>
+    <div id="training"></div>
+
 
     {{--CREATE CONTAINERS FOR PATTERNS--}}
     <div class="row">
@@ -92,7 +94,7 @@
                 data: {!! json_encode($errors["data"]) !!}
             }]
         }, function(chart){
-            var label = this.renderer.label("MAPE: {!! $errors["MAPE"] !!} <br>AVG Error: {{ $errors["AVG"] }}<br>COUNT: {{ $errors["COUNT"] }}")
+            var label = this.renderer.label("MAPE: {{ $errors["MAPE"] }} <br>AVG Error: {{ $errors["AVG"] }}<br>COUNT: {{ $errors["COUNT"] }}")
                     .css({
                         width: '450px',
                         color: '#222',
@@ -105,6 +107,43 @@
                         'padding': 10
                     })
                     .add();
+        });
+
+        {{--TRAINING CHART--}}
+        Highcharts.chart('training', {
+            chart: {
+                zoomType: 'x',
+                spacingBottom: 50
+            },
+            title: {
+                text: 'Training data'
+            },
+
+            subtitle: {
+                text: 'Source: BA-sum'
+            },
+
+            yAxis: {
+                title: {
+                    text: 'Real consumption'
+                }
+            },
+            legend: {
+                layout: 'vertical',
+                align: 'right',
+                verticalAlign: 'middle'
+            },
+
+            plotOptions: {
+                series: {
+                    pointStart: 2010
+                }
+            },
+
+            series: [{
+                name: 'Values',
+                data: {!! json_encode($training) !!}
+            }]
         });
 
         {{--GENERATE CHARTS JS--}}

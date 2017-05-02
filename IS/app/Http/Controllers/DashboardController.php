@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Pattern;
 use App\Prediction;
+use App\Training;
 use Illuminate\Http\Request;
 
 use App\Http\Requests;
@@ -16,7 +17,8 @@ class DashboardController extends Controller
         return view('dashboard.show', [
             "predictions"   => $this->getPredictions(),
             "errors"        => $this->getErrors(),
-            "patterns"      => $this->getPatterns()
+            "patterns"      => $this->getPatterns(),
+            "training"      => $this->getTraining()
         ]);
     }
 
@@ -99,6 +101,17 @@ class DashboardController extends Controller
         }
 
 //        dd($output);
+
+        return $output;
+    }
+
+    private function getTraining(){
+        $training = Training::all();
+        $output = [];
+
+        foreach ($training as $data){
+            $output[] = (float)$data->value;
+        }
 
         return $output;
     }
