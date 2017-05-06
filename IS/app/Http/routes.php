@@ -13,3 +13,4 @@
 
 Route::get('/', 'DashboardController@show');
 Route::get('getPredictions', 'DashboardController@getPredictions');
+Route::get('updatePredictions', 'DashboardController@updatePredictions');

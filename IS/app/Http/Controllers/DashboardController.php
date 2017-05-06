@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Pattern;
 use App\Prediction;
+use App\Probability;
 use App\Training;
 use Illuminate\Http\Request;
 
@@ -18,7 +19,8 @@ class DashboardController extends Controller
             "predictions"   => $this->getPredictions(),
             "errors"        => $this->getErrors(),
             "patterns"      => $this->getPatterns(),
-            "training"      => $this->getTraining()
+            "training"      => $this->getTraining(),
+            "probabilities" => $this->getProbabilities()
         ]);
     }
 
@@ -31,6 +33,11 @@ class DashboardController extends Controller
         foreach($predictions as $key => $attribute){
             $realValues[] = (float)$attribute->real_value;
             $forecasted[] = (float)$attribute->forecasted;
+
+            $predictions[$key]->update([
+                'ploted'    => 1
+            ]);
+            $predictions[$key]->save();
         }
 
 
@@ -49,27 +56,39 @@ class DashboardController extends Controller
 
     private function getErrors()
     {
-        $errors = [];
-        $mape = 0;
-        $sum = 0;
-        foreach (Prediction::all() as $key => $value){
-            $error = abs(($value->real_value - $value->forecasted) / $value->real_value) * 100;
-            $errors[] = $error;
-            $mape += $error / 100;
-            $sum += $error;
+        $output = [];
+
+        if(!Prediction::all()->isEmpty()){
+            $errors = [];
+            $mape = 0;
+            $sum = 0;
+            foreach (Prediction::all() as $key => $value){
+                $error = abs(($value->real_value - $value->forecasted) / $value->real_value) * 100;
+                $errors[] = $error;
+                $mape += $error / 100;
+                $sum += $error;
+            }
+
+            $MAPE = (100/count($errors)) * $mape;
+            $AVG = $sum / count($errors);
+            $COUNT = count($errors);
+
+            $output = [
+                "name"  => "Error",
+                "data"  => $errors,
+                "MAPE"  => round($MAPE, 2),
+                "AVG"   => round($AVG, 2),
+                "COUNT" => $COUNT
+            ];
+        }else{
+            $output = [
+                "name"  => "Error",
+                "data"  => [],
+                "MAPE"  => 0,
+                "AVG"   => 0,
+                "COUNT" => 0
+            ];
         }
-
-        $MAPE = (100/count($errors)) * $mape;
-        $AVG = $sum / count($errors);
-        $COUNT = count($errors);
-
-        $output = [
-            "name"  => "Error",
-            "data"  => $errors,
-            "MAPE"  => round($MAPE, 2),
-            "AVG"   => round($AVG, 2),
-            "COUNT" => $COUNT
-        ];
 
         return $output;
     }
@@ -114,5 +133,57 @@ class DashboardController extends Controller
         }
 
         return $output;
+    }
+
+    private function getProbabilities() {
+        if(!Prediction::all()->isEmpty()) {
+            $probabilities = [];
+            $group = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+
+            foreach ($group as $day) {
+                foreach (Probability::where('day', $day)->get() as $probability) {
+                    $probabilities[$day]['data'][] = [$probability->i, $probability->j, (float)$probability->probability];
+                }
+
+                $probabilities[$day]['X'] = Probability::where('day', $day)->groupBy('i')->get()->lists('i')->toArray();
+                $probabilities[$day]['Y'] = Probability::where('day', $day)->groupBy('j')->get()->lists('j')->toArray();
+            }
+
+//        dd($probabilities);
+        }
+        else{
+            $probabilities = [];
+        }
+        return $probabilities;
+    }
+
+    public function updatePredictions(){
+        $predictions = Prediction::where('ploted', false)->get();
+
+        $realValues = [];
+        $forecasted = [];
+
+        foreach($predictions as $key => $attribute){
+            $realValues[] = (float)$attribute->real_value;
+            $forecasted[] = (float)$attribute->forecasted;
+
+            $predictions[$key]->update([
+                'ploted'    => 1
+            ]);
+            $predictions[$key]->save();
+        }
+
+
+        $output[] = [
+            "name" => "Real values",
+            "data"  => $realValues
+        ];
+
+        $output[] = [
+            "name" => "Forecasted",
+            "data"  => $forecasted
+        ];
+
+        return json_encode($output);
     }
 }
