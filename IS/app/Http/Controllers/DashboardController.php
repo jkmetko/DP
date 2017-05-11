@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Multiplicity;
 use App\Pattern;
 use App\Prediction;
 use App\Probability;
@@ -16,11 +17,12 @@ class DashboardController extends Controller
 //        dd($this->getPredictions());
 
         return view('dashboard.show', [
-            "predictions"   => $this->getPredictions(),
-            "errors"        => $this->getErrors(),
-            "patterns"      => $this->getPatterns(),
-            "training"      => $this->getTraining(),
-            "probabilities" => $this->getProbabilities()
+            "predictions"       => $this->getPredictions(),
+            "errors"            => $this->getErrors(),
+            "patterns"          => $this->getPatterns(),
+            "training"          => $this->getTraining(),
+            "multiplicities"    => $this->getMultiplicities(),
+            "probabilities"     => $this->getProbabilities()
         ]);
     }
 
@@ -115,6 +117,7 @@ class DashboardController extends Controller
             //If the value in the template exists as a key in the actual array.. (condition)
             if(array_key_exists($v, $patterns))
             {
+                //dd($patterns);
                 $output[$v]=$patterns[$v]; //The value is assigned to the new array and the key of the actual array is assigned as a value to the new array
             }
         }
@@ -136,7 +139,7 @@ class DashboardController extends Controller
     }
 
     private function getProbabilities() {
-        if(!Prediction::all()->isEmpty()) {
+//        if(!Prediction::all()->isEmpty()) {
             $probabilities = [];
             $group = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 
@@ -147,14 +150,41 @@ class DashboardController extends Controller
 
                 $probabilities[$day]['X'] = Probability::where('day', $day)->groupBy('i')->get()->lists('i')->toArray();
                 $probabilities[$day]['Y'] = Probability::where('day', $day)->groupBy('j')->get()->lists('j')->toArray();
+
+                $probabilities[$day]['AVG']    = Probability::where('day', $day)->get()->average('probability');
+                $probabilities[$day]['COUNT']  = Probability::where('day', $day)->get()->count('probability');
             }
 
 //        dd($probabilities);
-        }
-        else{
-            $probabilities = [];
-        }
+//        }
+//        else{
+//            $probabilities = [];
+//        }
         return $probabilities;
+    }
+
+    private function getMultiplicities() {
+//        if(!Prediction::all()->isEmpty()) {
+            $multiplicities = [];
+            $group = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+
+            foreach ($group as $day) {
+                foreach (Multiplicity::where('day', $day)->get() as $multiplicity) {
+                    $multiplicities[$day]['data'][] = [$multiplicity->i, $multiplicity->j, (float)$multiplicity->multiplicity];
+                }
+
+                $multiplicities[$day]['X'] = Multiplicity::where('day', $day)->groupBy('i')->get()->lists('i')->toArray();
+                $multiplicities[$day]['Y'] = Multiplicity::where('day', $day)->groupBy('j')->get()->lists('j')->toArray();
+
+                $multiplicities[$day]['AVG']    = Multiplicity::where('day', $day)->get()->average('multiplicity');
+                $multiplicities[$day]['COUNT']  = Multiplicity::where('day', $day)->get()->count('multiplicity');
+            }
+//        dd($multiplicities['Monday']);
+//        }
+//        else{
+//            $multiplicities = [];
+//        }
+        return $multiplicities;
     }
 
     public function updatePredictions(){
