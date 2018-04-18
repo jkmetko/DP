@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Pattern extends Model
 {
-    protected $table = 'Patterns';
+    protected $table = 'patterns';
 
     protected $fillable = ['name', 'day'];
 

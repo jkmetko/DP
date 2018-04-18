@@ -59,9 +59,15 @@ class DashboardController extends Controller
             $sum += $error;
         }
 
-        $MAPE = (100/count($errors)) * $mape;
-        $AVG = $sum / count($errors);
-        $COUNT = count($errors);
+        if(count($errors) > 0){
+            $MAPE = (100/count($errors)) * $mape;
+            $AVG = $sum / count($errors);
+            $COUNT = count($errors);
+        }else{
+            $MAPE = 0;
+            $AVG = 0;
+            $COUNT = 0;
+        }
 
         $output = [
             "name"  => "Error",
