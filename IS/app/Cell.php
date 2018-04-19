@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Cell extends Model
 {
-    protected $table = 'Cells';
+    protected $table = 'cells';
 
     public function measurements() {
         return $this->hasMany(Measurement::class);
