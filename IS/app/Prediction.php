@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class Prediction extends Model
 {
     protected $table = 'predictions';
+    public $timestamps = false;
 
-    protected $fillable = ['real_value', 'forecasted'];
+    protected $fillable = ['real_value', 'forecasted', 'ploted'];
 }

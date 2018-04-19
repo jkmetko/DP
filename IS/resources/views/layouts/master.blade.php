@@ -30,8 +30,10 @@
     <!-- Bootstrap -->
     <script src="{{ asset('assets/plugins/bootstrap-3.3.7-dist/bootstrap-3.3.7-dist/js/bootstrap.min.js') }}"></script>
 
-    <!-- HighCharts -->
-    <script src="{{ asset('assets/plugins/Highcharts-5.0.10/code/js/highcharts.js') }}"></script>
+    <!-- HighStock -->
+    {{--HighCharts is already in HighStock. When both included, they colide--}}
+    <script src="{{ asset('assets/plugins/Highstock-5.0.11/code/js/highstock.js') }}"></script>
+    <script src="{{ asset('assets/plugins/Highstock-5.0.11/code/modules/exporting.js') }}"></script>
 
     @yield('js')
 </body>
