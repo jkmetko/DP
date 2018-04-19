@@ -85,7 +85,7 @@
         });
 
         {{--PREDICTIONS UPDATE CHART--}}
-        // Create the chart
+        {{--// Create the chart--}}
         {{--var chart = Highcharts.stockChart('predictions-update', {--}}
             {{--chart: {--}}
                 {{--events: {--}}
